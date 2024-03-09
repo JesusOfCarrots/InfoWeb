@@ -16,6 +16,7 @@ const cam = new THREE.PerspectiveCamera(FOV, width / height, 0.1, 1000)
 // Html
 const otherSpace = document.getElementById('other');
 const rotationSpeedSlider = document.getElementById('slider');
+const camDistanceSlider = document.getElementById('camDistanceSlider');
 const rotateCheckbox = document.getElementById('rotateCheckbox');
 const colorPicker = document.getElementById("colorPicker");
 const backgroundColorPicker = document.getElementById("gbColor");
@@ -44,12 +45,19 @@ function hexToRgb(hex) {
 
 
 function getHtmlValues(){
-    // slider
+    // rotation slider
     rotationSpeedSlider.addEventListener('input', () => {
         rotationSpeed = parseFloat(rotationSpeedSlider.value);
         document.getElementById('sliderValue').textContent = rotationSpeed.toFixed(2);
-    })
+    });
 
+    // distance slider
+    camDistanceSlider.addEventListener('input', () => {
+        cameraDistance = parseFloat(camDistanceSlider.value);
+        document.getElementById('camDistanceSliderValue').textContent = cameraDistance.toFixed(2);
+        cam.position.z = cameraDistance;
+    });
+    
     // checkbox
     rotateCheckbox.addEventListener("click", updateCheckBox);
 
