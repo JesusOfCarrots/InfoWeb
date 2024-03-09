@@ -1,5 +1,3 @@
-cam distance,
-cube size,
 cube pos,
 new cube,
 resize canvas on window resize,

@@ -6,6 +6,8 @@ let height = window.innerHeight * 0.7;
 let cameraDistance = 5;
 
 let canRotate = true;
+let cubeSize = 1;
+
 let rotationSpeed = 0.02;
 let cubeColor = 0xffd700;
 let bgColor = 0x0000;
@@ -17,12 +19,13 @@ const cam = new THREE.PerspectiveCamera(FOV, width / height, 0.1, 1000)
 const otherSpace = document.getElementById('other');
 const rotationSpeedSlider = document.getElementById('slider');
 const camDistanceSlider = document.getElementById('camDistanceSlider');
+const cubeSizeSlider = document.getElementById('cubeSizeSlider');
 const rotateCheckbox = document.getElementById('rotateCheckbox');
 const colorPicker = document.getElementById("colorPicker");
 const backgroundColorPicker = document.getElementById("gbColor");
 
 const renderer = new THREE.WebGLRenderer();
-const geometry = new THREE.BoxGeometry(1, 1, 1);
+const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
 const material = new THREE.MeshBasicMaterial( {color:cubeColor} );
 
 const cube = new THREE.Mesh(geometry, material);
@@ -57,6 +60,14 @@ function getHtmlValues(){
         document.getElementById('camDistanceSliderValue').textContent = cameraDistance.toFixed(2);
         cam.position.z = cameraDistance;
     });
+
+    // cube slider
+    cubeSizeSlider.addEventListener('input', () => {
+        cubeSize = parseFloat(cubeSizeSlider.value);
+        document.getElementById('cubeSizeValue').textContent = cubeSize.toFixed(2);
+        // update the cube size
+        cube.scale.set(cubeSize, cubeSize, cubeSize);
+    });
     
     // checkbox
     rotateCheckbox.addEventListener("click", updateCheckBox);
@@ -89,6 +100,7 @@ function setUp(){
     let offsetX = window.innerWidth - width;
     renderer.domElement.style.marginTop = offsetY / 2 + 'px';
     otherSpace.style.width  = offsetX + 'px';
+    otherSpace.style.top = window.innerHeight * 0.3 + 'px';
 
     getHtmlValues();
 
