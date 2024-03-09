@@ -1,1 +1,13 @@
-html, body {margin: 0;}
+html, body {margin: 0; font-family: 'Times New Roman', Times, serif; font-size: 22px;}
+
+.cav{
+    float: right;
+    margin-right: 7px;
+}
+
+#other{
+    position: absolute;
+    top: 50%;
+    text-align: center;
+    vertical-align: middle;
+}
