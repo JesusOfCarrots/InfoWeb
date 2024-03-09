@@ -10,6 +10,8 @@ let canRotate = true;
 
 const scene = new THREE.Scene();
 const cam = new THREE.PerspectiveCamera(FOV, width / height, 0.1, 1000)
+
+const rotationSpeedSlider = document.getElementById('slider');
 const otherSpace = document.getElementById('other');
 
 const renderer = new THREE.WebGLRenderer();
@@ -29,6 +31,13 @@ function setUp(){
     let offsetX = window.innerWidth - width;
     renderer.domElement.style.marginTop = offsetY / 2 + 'px';
     otherSpace.style.width  = offsetX + 'px';
+
+
+    // slider
+    rotationSpeedSlider.addEventListener('input', () => {
+        rotationSpeed = parseFloat(rotationSpeedSlider.value);
+        document.getElementById('sliderValue').textContent = rotationSpeed.toFixed(2);
+    })
 
     cam.position.z = cameraDistance;
 
