@@ -8,14 +8,17 @@ let cameraDistance = 5;
 let rotationSpeed = 0.02;
 let canRotate = true;
 let cubeColor = 0xffd700;
+let bgColor = 0x0000;
 
 const scene = new THREE.Scene();
 const cam = new THREE.PerspectiveCamera(FOV, width / height, 0.1, 1000)
 
+// Html
 const otherSpace = document.getElementById('other');
 const rotationSpeedSlider = document.getElementById('slider');
 const rotateCheckbox = document.getElementById('rotateCheckbox');
 const colorPicker = document.getElementById("colorPicker");
+const backgroundColorPicker = document.getElementById("gbColor");
 
 const renderer = new THREE.WebGLRenderer();
 const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -44,6 +47,7 @@ function setUp(){
     renderer.domElement.classList.add('cav');
     document.body.appendChild(renderer.domElement);
 
+    scene.background = new THREE.Color(bgColor);
     scene.add(cube);
     // Center
     let offsetY = window.innerHeight - height;
@@ -63,11 +67,18 @@ function setUp(){
 
     // color
     colorPicker.addEventListener('input', function(){
-        let hexColor = colorPicker.value
+        let hexColor = colorPicker.value;
         cubeColor = hexToRgb(hexColor);
         // Update cube color
         cube.material.color.set(cubeColor);
     });
+    // bg color
+    backgroundColorPicker.addEventListener('input', function(){
+        let hexColor = backgroundColorPicker.value;
+        bgColor = hexToRgb(hexColor);
+        // Update bg color
+        scene.background = new THREE.Color(bgColor);
+    })
 
     cam.position.z = cameraDistance;
 
