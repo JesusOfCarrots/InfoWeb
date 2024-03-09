@@ -24,6 +24,11 @@ const rotateCheckbox = document.getElementById('rotateCheckbox');
 const colorPicker = document.getElementById("colorPicker");
 const backgroundColorPicker = document.getElementById("gbColor");
 
+// Cube pos
+const cubeX = document.getElementById('cubeX');
+const cubeY = document.getElementById('cubeY');
+const cubeZ = document.getElementById('cubeZ');
+
 const renderer = new THREE.WebGLRenderer();
 const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
 const material = new THREE.MeshBasicMaterial( {color:cubeColor} );
@@ -47,6 +52,11 @@ function hexToRgb(hex) {
 }
 
 
+function updateCubePos(){
+    cube.position.set(cubeX.value, cubeY.value, cubeZ.value);
+    console.log(cubeX.value, cubeY.value, cubeZ.value);
+}
+
 function getHtmlValues(){
     // rotation slider
     rotationSpeedSlider.addEventListener('input', () => {
@@ -68,6 +78,12 @@ function getHtmlValues(){
         // update the cube size
         cube.scale.set(cubeSize, cubeSize, cubeSize);
     });
+
+    // Cube Pos
+    cubeX.addEventListener('input', updateCubePos);
+    cubeY.addEventListener('input', updateCubePos);
+    cubeZ.addEventListener('input', updateCubePos);
+    updateCubePos();
     
     // checkbox
     rotateCheckbox.addEventListener("click", updateCheckBox);
