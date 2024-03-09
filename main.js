@@ -11,14 +11,20 @@ let canRotate = true;
 const scene = new THREE.Scene();
 const cam = new THREE.PerspectiveCamera(FOV, width / height, 0.1, 1000)
 
-const rotationSpeedSlider = document.getElementById('slider');
 const otherSpace = document.getElementById('other');
+const rotationSpeedSlider = document.getElementById('slider');
+const rotateCheckbox = document.getElementById('rotateCheckbox');
 
 const renderer = new THREE.WebGLRenderer();
 const geometry = new THREE.BoxGeometry(1, 1, 1);
 const material = new THREE.MeshBasicMaterial( {color:0xffd700} );
 
 const cube = new THREE.Mesh(geometry, material);
+
+function updateCheckBox(){
+    canRotate = rotateCheckbox.checked;
+    console.log(canRotate);
+}
 
 function setUp(){
     renderer.setSize(width, height);
@@ -38,6 +44,9 @@ function setUp(){
         rotationSpeed = parseFloat(rotationSpeedSlider.value);
         document.getElementById('sliderValue').textContent = rotationSpeed.toFixed(2);
     })
+
+    // checkbox
+    rotateCheckbox.addEventListener("click", updateCheckBox);
 
     cam.position.z = cameraDistance;
 
