@@ -32,19 +32,22 @@ const cubeZ = document.getElementById('cubeZ');
 const renderer = new THREE.WebGLRenderer();
 const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
 const material = new THREE.MeshBasicMaterial( {color:cubeColor} );
+let canvas = renderer.domElement;
 
+// Plane
+const planeGeometry = new THREE.PlaneGeometry(10, 5);
+const planeMaterial = new THREE.MeshBasicMaterial( {color: 0x800080, side: THREE.DoubleSide} );
+
+const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 const cube = new THREE.Mesh(geometry, material);
 
 // Mouse
-let isDraging = false;
-let previousMousePos = {
-    x: 0,
-    y: 0
-};
-document.addEventListener('mousedown', onMouseDown, false);
-document.addEventListener('mousemove', onMouseMove, false);
-document.addEventListener('mouseup', onMouseUp, false);
+let isMouseDown = false;
+let isMouseWithinCanvas = false;
 document.addEventListener('wheel', onMouseWheel, false);
+canvas.addEventListener('mousedown', onMouseDown, false);
+canvas.addEventListener('mouseenter', onMouseEnterCanvas, false);
+canvas.addEventListener('mouseleave', onMouseLeaveCanvas, false);
 
 function updateCheckBox(){
     canRotate = rotateCheckbox.checked;
@@ -113,45 +116,31 @@ function getHtmlValues(){
         scene.background = new THREE.Color(bgColor);
     });
 }
-//#region Mouse Input
+
 function onMouseDown(event){
-    isDraging = true;
-    previousMousePos = {
-        x: event.clientX,
-        y: event.clientY
-    };
-}
-
-function onMouseMove(event){
-    if (isDraging){
-        let deltaMove = {
-            x: event.clientX - previousMousePos.x,
-            y: event.clientY - previousMousePos.y
-        };
-
-        rotateCam(deltaMove);
-
-        previousMousePos = {
-            x: event.clientX,
-            y: event.clientY
-        };
+    event.preventDefault();
+    
+    if(event.button === 2 && isMouseWithinCanvas){
+        isMouseDown = true;
+        document.addEventListener('mousemove', onMouseMove, false);
+        document.addEventListener('mouseup', onMouseUp, false);
     }
 }
-
-function onMouseUp(event){ isDraging = false; }
-
-function rotateCam(deltaMove){
-    let deltaRotationQuaternion = new THREE.Quaternion()
-        .setFromEuler(new THREE.Euler(
-            toRadians(deltaMove.y * 0.3),
-            toRadians(deltaMove.x * 0.3),
-            0,
-            'XYZ'
-        ));
-    cam.quaternion.multiplyQuaternions(deltaRotationQuaternion, cam.quaternion);
+function onMouseMove(event){
+    if(isMouseDown){
+        let speed = 0.01;
+        cam.rotation.y -= event.movementX * speed;
+        cam.rotation.x -= event.movementY * speed;
+    }
+}
+function onMouseUp(event) {
+    isMouseDown = false;
+    document.removeEventListener('mousemove', onMouseMove, false);
+    document.removeEventListener('mouseup', onMouseUp, false);
 }
 
-function toRadians(degrees){ return degrees * (Math.PI / 180); }
+function onMouseEnterCanvas(event){isMouseWithinCanvas = true;}
+function onMouseLeaveCanvas(event){isMouseWithinCanvas = false;}
 
 function onMouseWheel(event){
     if(event.deltaY > 0){
@@ -164,7 +153,6 @@ function onMouseWheel(event){
     }
 }
 
-//#endregion
 
 function setUp(){
     renderer.setSize(width, height);
@@ -173,6 +161,10 @@ function setUp(){
 
     scene.background = new THREE.Color(bgColor);
     scene.add(cube);
+    scene.add(plane);
+
+    plane.rotation.x = 90;
+
     // Center
     let offsetY = window.innerHeight - height;
     let offsetX = window.innerWidth - width;
