@@ -35,6 +35,17 @@ const material = new THREE.MeshBasicMaterial( {color:cubeColor} );
 
 const cube = new THREE.Mesh(geometry, material);
 
+// Mouse
+let isDraging = false;
+let previousMousePos = {
+    x: 0,
+    y: 0
+};
+document.addEventListener('mousedown', onMouseDown, false);
+document.addEventListener('mousemove', onMouseMove, false);
+document.addEventListener('mouseup', onMouseUp, false);
+document.addEventListener('wheel', onMouseWheel, false);
+
 function updateCheckBox(){
     canRotate = rotateCheckbox.checked;
     console.log(canRotate);
@@ -50,7 +61,6 @@ function hexToRgb(hex) {
 
     return new THREE.Color(r / 255, g / 255, b / 255);
 }
-
 
 function updateCubePos(){
     cube.position.set(cubeX.value, cubeY.value, cubeZ.value);
@@ -103,6 +113,58 @@ function getHtmlValues(){
         scene.background = new THREE.Color(bgColor);
     });
 }
+//#region Mouse Input
+function onMouseDown(event){
+    isDraging = true;
+    previousMousePos = {
+        x: event.clientX,
+        y: event.clientY
+    };
+}
+
+function onMouseMove(event){
+    if (isDraging){
+        let deltaMove = {
+            x: event.clientX - previousMousePos.x,
+            y: event.clientY - previousMousePos.y
+        };
+
+        rotateCam(deltaMove);
+
+        previousMousePos = {
+            x: event.clientX,
+            y: event.clientY
+        };
+    }
+}
+
+function onMouseUp(event){ isDraging = false; }
+
+function rotateCam(deltaMove){
+    let deltaRotationQuaternion = new THREE.Quaternion()
+        .setFromEuler(new THREE.Euler(
+            toRadians(deltaMove.y * 0.3),
+            toRadians(deltaMove.x * 0.3),
+            0,
+            'XYZ'
+        ));
+    cam.quaternion.multiplyQuaternions(deltaRotationQuaternion, cam.quaternion);
+}
+
+function toRadians(degrees){ return degrees * (Math.PI / 180); }
+
+function onMouseWheel(event){
+    if(event.deltaY > 0){
+        cam.position.z++;
+        document.getElementById('camDistanceSliderValue').textContent = cam.position.z.toFixed(2);
+    }
+    else{
+        cam.position.z--;
+        document.getElementById('camDistanceSliderValue').textContent = cam.position.z.toFixed(2);
+    }
+}
+
+//#endregion
 
 function setUp(){
     renderer.setSize(width, height);
