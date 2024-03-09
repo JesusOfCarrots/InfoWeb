@@ -5,8 +5,8 @@ let width = window.innerWidth * 0.7;
 let height = window.innerHeight * 0.7;
 let cameraDistance = 5;
 
-let rotationSpeed = 0.02;
 let canRotate = true;
+let rotationSpeed = 0.02;
 let cubeColor = 0xffd700;
 let bgColor = 0x0000;
 
@@ -42,20 +42,8 @@ function hexToRgb(hex) {
     return new THREE.Color(r / 255, g / 255, b / 255);
 }
 
-function setUp(){
-    renderer.setSize(width, height);
-    renderer.domElement.classList.add('cav');
-    document.body.appendChild(renderer.domElement);
 
-    scene.background = new THREE.Color(bgColor);
-    scene.add(cube);
-    // Center
-    let offsetY = window.innerHeight - height;
-    let offsetX = window.innerWidth - width;
-    renderer.domElement.style.marginTop = offsetY / 2 + 'px';
-    otherSpace.style.width  = offsetX + 'px';
-
-
+function getHtmlValues(){
     // slider
     rotationSpeedSlider.addEventListener('input', () => {
         rotationSpeed = parseFloat(rotationSpeedSlider.value);
@@ -78,7 +66,23 @@ function setUp(){
         bgColor = hexToRgb(hexColor);
         // Update bg color
         scene.background = new THREE.Color(bgColor);
-    })
+    });
+}
+
+function setUp(){
+    renderer.setSize(width, height);
+    renderer.domElement.classList.add('cav');
+    document.body.appendChild(renderer.domElement);
+
+    scene.background = new THREE.Color(bgColor);
+    scene.add(cube);
+    // Center
+    let offsetY = window.innerHeight - height;
+    let offsetX = window.innerWidth - width;
+    renderer.domElement.style.marginTop = offsetY / 2 + 'px';
+    otherSpace.style.width  = offsetX + 'px';
+
+    getHtmlValues();
 
     cam.position.z = cameraDistance;
 
