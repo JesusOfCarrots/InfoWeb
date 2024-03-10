@@ -13,7 +13,6 @@ let canRotate = true;
 let cubeSize = 1;
 
 let rotationSpeed = 0.02;
-let cubeColor = 0xffd700;
 let bgColor = 0x0000;
 
 const scene = new THREE.Scene();
@@ -24,6 +23,7 @@ const otherSpace = document.getElementById('other');
 const backgroundColorPicker = document.getElementById("gbColor");
 
 // Cube
+let cubeColor = 0xffd700;
 const cubeX = document.getElementById('cubeX');
 const cubeY = document.getElementById('cubeY');
 const cubeZ = document.getElementById('cubeZ');
@@ -36,19 +36,27 @@ const colorPicker = document.getElementById("colorPicker");
 const renderer = new THREE.WebGLRenderer();
 const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
 const material = new THREE.MeshBasicMaterial( {color:cubeColor} );
-
-
-
-// Plane
-const planeGeometry = new THREE.BoxGeometry(10, 5, 1);
-const planeMaterial = new THREE.MeshBasicMaterial( {color: 0x800080, side: THREE.DoubleSide} );
-
-const frameCube = new THREE.Mesh(new THREE.BoxGeometry(30, 30, 30, 10, 10, 10), new THREE.MeshBasicMaterial({color:0x00ff00, wireframe:true,}))
-
-const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 const cube = new THREE.Mesh(geometry, material);
 
-function hexToRgb(hex) {
+// Plane
+let planeColor = 0x3b0057;
+const planeColorPicker = document.getElementById('planeColor');
+
+const planeGeometry = new THREE.BoxGeometry(10, 5, 1);
+const planeMaterial = new THREE.MeshBasicMaterial( {color:planeColor} );
+const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+
+// Grid
+let showGrid = true;
+let gridSize = 30;
+const gridCube = new THREE.Mesh(new THREE.BoxGeometry(30, 30, 30, 10, 10, 10), new THREE.MeshBasicMaterial({color:0x00ff00, wireframe:true,}))
+
+const gridCheckBox = document.getElementById('gridCheck');
+const gridSizeSlider = document.getElementById('gridSizeSlider');
+
+const controls = new OrbitControls(cam, renderer.domElement);
+
+function colorToThree(hex) {
     hex = String(hex);
     hex = hex.replace('#', '');
 
@@ -58,7 +66,6 @@ function hexToRgb(hex) {
 
     return new THREE.Color(r / 255, g / 255, b / 255);
 }
-
 function updateCubePos(){
     cube.position.set(cubeX.value, cubeY.value, cubeZ.value);
 }
@@ -78,6 +85,14 @@ function getHtmlValues(){
         cube.scale.set(cubeSize, cubeSize, cubeSize);
     });
 
+    // Grid size slider
+    gridSizeSlider.addEventListener('input', () => {
+        gridSize = parseFloat(gridSizeSlider.value);
+        document.getElementById('gridSizeValue').textContent = gridSize.toFixed(2);
+
+        gridCube.scale.set(gridSize / 30, gridSize / 30, gridSize / 30);
+    });
+
     // Cube Pos
     cubeX.addEventListener('input', updateCubePos);
     cubeY.addEventListener('input', updateCubePos);
@@ -86,39 +101,49 @@ function getHtmlValues(){
     
     // checkbox
     rotateCheckbox.addEventListener("click", function () {
-        canRotate = rotateCheckbox.checked
+        canRotate = rotateCheckbox.checked;
+    });
+    // Grid Checkbox
+    gridCheckBox.addEventListener('click', function(){
+        showGrid = gridCheckBox.checked;
     });
 
     // color
     colorPicker.addEventListener('input', function(){
         let hexColor = colorPicker.value;
-        cubeColor = hexToRgb(hexColor);
+        cubeColor = colorToThree(hexColor);
         // Update cube color
         cube.material.color.set(cubeColor);
     });
     // bg color
     backgroundColorPicker.addEventListener('input', function(){
         let hexColor = backgroundColorPicker.value;
-        bgColor = hexToRgb(hexColor);
+        bgColor = colorToThree(hexColor);
         // Update bg color
         scene.background = new THREE.Color(bgColor);
     });
+    // plane color
+    planeColorPicker.addEventListener('input', function(){
+        let hexColor = planeColorPicker.value;
+        planeColor = colorToThree(hexColor);
+        plane.material.color.set(planeColor);
+    });
 }
 
-const controls = new OrbitControls(cam, renderer.domElement);
-controls.target.set(1, -1, -1);
-controls.enableZoom = true;
-controls.enableDamping = true;
-controls.update();
-
 function setUp(){
-
     renderer.setSize(width, height);
     renderer.domElement.classList.add('cav');
     document.body.appendChild(renderer.domElement);
 
+    // Controls
+    controls.target.set(1, -1, -1);
+    controls.enableZoom = true;
+    controls.enableDamping = true;
+    controls.update();
+
+    // Scene
     scene.background = new THREE.Color(bgColor);
-    scene.add(frameCube);
+    scene.add(gridCube);
     scene.add(cube);
     scene.add(plane);
 
@@ -127,7 +152,7 @@ function setUp(){
     let offsetX = window.innerWidth - width;
     renderer.domElement.style.marginTop = offsetY / 2 + 'px';
     otherSpace.style.width  = offsetX + 'px';
-    otherSpace.style.top = window.innerHeight * 0.3 + 'px';
+    otherSpace.style.top = window.innerHeight * 0.1 + 'px';
 
     getHtmlValues();
 
@@ -142,10 +167,18 @@ function render(){
 
     controls.update();
 
+    // Draw rotation
     if (canRotate){
         cube.rotation.x += rotationSpeed;
         cube.rotation.y += rotationSpeed;
         cube.rotation.z += rotationSpeed;
+    }
+
+    // Draw Grid
+    if(showGrid){
+        gridCube.visible = true;
+    }else{
+        gridCube.visible = false;
     }
 
     renderer.render(scene, cam);

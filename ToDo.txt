@@ -1,4 +1,3 @@
-WASD movemnt,
 new cube,
 resize canvas on window resize,
-frame rate
+physics
