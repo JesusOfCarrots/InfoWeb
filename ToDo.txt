@@ -1,5 +1,5 @@
 new cube,
-resize canvas on window resize,
+(resize canvas on window resize => Worked Meh)
 physics
 
 
