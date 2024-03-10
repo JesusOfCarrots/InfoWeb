@@ -1,4 +1,8 @@
 import * as THREE from 'three';
+import {
+    OrbitControls
+  } from 'three/examples/jsm/controls/OrbitControls'
+import Stats from 'three/examples/jsm/libs/stats.module'
 
 let FOV = 75;
 let width = window.innerWidth * 0.7;
@@ -17,42 +21,32 @@ const cam = new THREE.PerspectiveCamera(FOV, width / height, 0.1, 1000)
 
 // Html
 const otherSpace = document.getElementById('other');
-const rotationSpeedSlider = document.getElementById('slider');
-const camDistanceSlider = document.getElementById('camDistanceSlider');
-const cubeSizeSlider = document.getElementById('cubeSizeSlider');
-const rotateCheckbox = document.getElementById('rotateCheckbox');
-const colorPicker = document.getElementById("colorPicker");
 const backgroundColorPicker = document.getElementById("gbColor");
 
-// Cube pos
+// Cube
 const cubeX = document.getElementById('cubeX');
 const cubeY = document.getElementById('cubeY');
 const cubeZ = document.getElementById('cubeZ');
 
+const rotationSpeedSlider = document.getElementById('slider');
+const cubeSizeSlider = document.getElementById('cubeSizeSlider');
+const rotateCheckbox = document.getElementById('rotateCheckbox');
+const colorPicker = document.getElementById("colorPicker");
+
 const renderer = new THREE.WebGLRenderer();
 const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
 const material = new THREE.MeshBasicMaterial( {color:cubeColor} );
-let canvas = renderer.domElement;
+
+
 
 // Plane
-const planeGeometry = new THREE.PlaneGeometry(10, 5);
+const planeGeometry = new THREE.BoxGeometry(10, 5, 1);
 const planeMaterial = new THREE.MeshBasicMaterial( {color: 0x800080, side: THREE.DoubleSide} );
+
+const frameCube = new THREE.Mesh(new THREE.BoxGeometry(30, 30, 30, 10, 10, 10), new THREE.MeshBasicMaterial({color:0x00ff00, wireframe:true,}))
 
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 const cube = new THREE.Mesh(geometry, material);
-
-// Mouse
-let isMouseDown = false;
-let isMouseWithinCanvas = false;
-document.addEventListener('wheel', onMouseWheel, false);
-canvas.addEventListener('mousedown', onMouseDown, false);
-canvas.addEventListener('mouseenter', onMouseEnterCanvas, false);
-canvas.addEventListener('mouseleave', onMouseLeaveCanvas, false);
-
-function updateCheckBox(){
-    canRotate = rotateCheckbox.checked;
-    console.log(canRotate);
-}
 
 function hexToRgb(hex) {
     hex = String(hex);
@@ -67,7 +61,6 @@ function hexToRgb(hex) {
 
 function updateCubePos(){
     cube.position.set(cubeX.value, cubeY.value, cubeZ.value);
-    console.log(cubeX.value, cubeY.value, cubeZ.value);
 }
 
 function getHtmlValues(){
@@ -75,13 +68,6 @@ function getHtmlValues(){
     rotationSpeedSlider.addEventListener('input', () => {
         rotationSpeed = parseFloat(rotationSpeedSlider.value);
         document.getElementById('sliderValue').textContent = rotationSpeed.toFixed(2);
-    });
-
-    // distance slider
-    camDistanceSlider.addEventListener('input', () => {
-        cameraDistance = parseFloat(camDistanceSlider.value);
-        document.getElementById('camDistanceSliderValue').textContent = cameraDistance.toFixed(2);
-        cam.position.z = cameraDistance;
     });
 
     // cube slider
@@ -99,7 +85,9 @@ function getHtmlValues(){
     updateCubePos();
     
     // checkbox
-    rotateCheckbox.addEventListener("click", updateCheckBox);
+    rotateCheckbox.addEventListener("click", function () {
+        canRotate = rotateCheckbox.checked
+    });
 
     // color
     colorPicker.addEventListener('input', function(){
@@ -117,53 +105,22 @@ function getHtmlValues(){
     });
 }
 
-function onMouseDown(event){
-    event.preventDefault();
-    
-    if(event.button === 2 && isMouseWithinCanvas){
-        isMouseDown = true;
-        document.addEventListener('mousemove', onMouseMove, false);
-        document.addEventListener('mouseup', onMouseUp, false);
-    }
-}
-function onMouseMove(event){
-    if(isMouseDown){
-        let speed = 0.01;
-        cam.rotation.y -= event.movementX * speed;
-        cam.rotation.x -= event.movementY * speed;
-    }
-}
-function onMouseUp(event) {
-    isMouseDown = false;
-    document.removeEventListener('mousemove', onMouseMove, false);
-    document.removeEventListener('mouseup', onMouseUp, false);
-}
-
-function onMouseEnterCanvas(event){isMouseWithinCanvas = true;}
-function onMouseLeaveCanvas(event){isMouseWithinCanvas = false;}
-
-function onMouseWheel(event){
-    if(event.deltaY > 0){
-        cam.position.z++;
-        document.getElementById('camDistanceSliderValue').textContent = cam.position.z.toFixed(2);
-    }
-    else{
-        cam.position.z--;
-        document.getElementById('camDistanceSliderValue').textContent = cam.position.z.toFixed(2);
-    }
-}
-
+const controls = new OrbitControls(cam, renderer.domElement);
+controls.target.set(1, -1, -1);
+controls.enableZoom = true;
+controls.enableDamping = true;
+controls.update();
 
 function setUp(){
+
     renderer.setSize(width, height);
     renderer.domElement.classList.add('cav');
     document.body.appendChild(renderer.domElement);
 
     scene.background = new THREE.Color(bgColor);
+    scene.add(frameCube);
     scene.add(cube);
     scene.add(plane);
-
-    plane.rotation.x = 90;
 
     // Center
     let offsetY = window.innerHeight - height;
@@ -175,12 +132,15 @@ function setUp(){
     getHtmlValues();
 
     cam.position.z = cameraDistance;
+    plane.rotation.x = Math.PI / 2;
 
     render();
 }
 
 function render(){
     requestAnimationFrame(render);
+
+    controls.update();
 
     if (canRotate){
         cube.rotation.x += rotationSpeed;

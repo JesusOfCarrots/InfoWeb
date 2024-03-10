@@ -1,5 +1,6 @@
 html, body {margin: 0; font-family: 'Times New Roman', Times, serif; font-size: 22px;}
 p{margin-top: 1px; margin-bottom: 1px;}
+hr{width: 70%; height: 1.5px; background-color: black;}
 
 .cav{
     float: right;
