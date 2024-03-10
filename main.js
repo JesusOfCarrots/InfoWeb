@@ -1,8 +1,5 @@
 import * as THREE from 'three';
-import {
-    OrbitControls
-  } from 'three/examples/jsm/controls/OrbitControls'
-import Stats from 'three/examples/jsm/libs/stats.module'
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 
 let FOV = 75;
 let width = window.innerWidth * 0.7;
@@ -21,6 +18,7 @@ const cam = new THREE.PerspectiveCamera(FOV, width / height, 0.1, 1000)
 // Html
 const otherSpace = document.getElementById('other');
 const backgroundColorPicker = document.getElementById("gbColor");
+const fovSlider = document.getElementById('fovSlider');
 
 // Cube
 let cubeColor = 0xffd700;
@@ -66,11 +64,16 @@ function colorToThree(hex) {
 
     return new THREE.Color(r / 255, g / 255, b / 255);
 }
-function updateCubePos(){
-    cube.position.set(cubeX.value, cubeY.value, cubeZ.value);
-}
 
-function getHtmlValues(){
+function Html(){
+    // General
+    fovSlider.addEventListener('input', () => {
+        FOV = parseFloat(fovSlider.value);
+        document.getElementById('fovValue').textContent = FOV.toFixed(2);
+        cam.fov = FOV;
+    });
+
+
     // rotation slider
     rotationSpeedSlider.addEventListener('input', () => {
         rotationSpeed = parseFloat(rotationSpeedSlider.value);
@@ -94,10 +97,10 @@ function getHtmlValues(){
     });
 
     // Cube Pos
-    cubeX.addEventListener('input', updateCubePos);
-    cubeY.addEventListener('input', updateCubePos);
-    cubeZ.addEventListener('input', updateCubePos);
-    updateCubePos();
+    cubeX.addEventListener('input', () => {cube.position.set(cubeX.value, cubeY.value, cubeZ.value);});
+    cubeY.addEventListener('input', () => {cube.position.set(cubeX.value, cubeY.value, cubeZ.value);});
+    cubeZ.addEventListener('input', () => {cube.position.set(cubeX.value, cubeY.value, cubeZ.value);});
+    cube.position.set(cubeX.value, cubeY.value, cubeZ.value);
     
     // checkbox
     rotateCheckbox.addEventListener("click", function () {
@@ -152,11 +155,13 @@ function setUp(){
     let offsetX = window.innerWidth - width;
     renderer.domElement.style.marginTop = offsetY / 2 + 'px';
     otherSpace.style.width  = offsetX + 'px';
-    otherSpace.style.top = window.innerHeight * 0.1 + 'px';
+    otherSpace.style.top = window.innerHeight * 0.01 + 'px';
 
-    getHtmlValues();
+    Html();
 
+    // Standart values
     cam.position.z = cameraDistance;
+    cube.position.y = 1.5;
     plane.rotation.x = Math.PI / 2;
 
     render();
@@ -181,6 +186,7 @@ function render(){
         gridCube.visible = false;
     }
 
+    cam.updateProjectionMatrix();
     renderer.render(scene, cam);
 }
 
