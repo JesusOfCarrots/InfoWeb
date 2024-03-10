@@ -54,6 +54,26 @@ const gridSizeSlider = document.getElementById('gridSizeSlider');
 
 const controls = new OrbitControls(cam, renderer.domElement);
 
+// Event Listener
+window.addEventListener('resize', onWindowResize);
+
+function onWindowResize() {
+    width = window.innerWidth * 0.7;
+    height = window.innerHeight * 0.7;
+
+    cam.aspect = width / height;
+    cam.updateProjectionMatrix();
+
+    renderer.setSize(width, height);
+
+    // Adjust layout of otherSpace div
+    const offsetY = window.innerHeight - height;
+    const offsetX = window.innerWidth - width;
+    renderer.domElement.style.marginTop = offsetY / 2 + 'px';
+    otherSpace.style.width = offsetX + 'px';
+    otherSpace.style.top = window.innerHeight * 0.01 + 'px';
+}
+
 function colorToThree(hex) {
     hex = String(hex);
     hex = hex.replace('#', '');
@@ -163,8 +183,6 @@ function setUp(){
     cam.position.z = cameraDistance;
     cube.position.y = 1.5;
     plane.rotation.x = Math.PI / 2;
-
-    render();
 }
 
 function render(){
@@ -190,4 +208,5 @@ function render(){
     renderer.render(scene, cam);
 }
 
+render();
 setUp();

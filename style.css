@@ -10,5 +10,6 @@ hr{width: 70%; height: 1.5px; background-color: black;}
 #other{
     position: absolute;
     text-align: center;
+    max-height: 100vh;
 }
 .cubeNum{width: 45px;}
