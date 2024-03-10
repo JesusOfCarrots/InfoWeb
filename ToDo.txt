@@ -1,3 +1,6 @@
 new cube,
 resize canvas on window resize,
 physics
+
+
+Clean up code | CSS
