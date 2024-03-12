@@ -52,7 +52,6 @@ const gridSizeSlider = document.getElementById('gridSizeSlider');
 
 const gridCube = new three.Mesh(new three.BoxGeometry(30, 30, 30, 10, 10, 10), new three.MeshBasicMaterial({color:0x00ff00, wireframe:true,}));
 
-
 // Mouse 
 const controls = new OrbitControls(cam, renderer.domElement);
 window.addEventListener('resize', onWindowResize);
@@ -73,6 +72,7 @@ function onWindowResize(){
     otherSpace.style.width = offsetX + 'px';
 }
 
+//#region Html
 function convertColor(hex){
     hex = String(hex);
     hex = hex.replace('#', '');
@@ -113,13 +113,13 @@ function htmlValues(){
 
         gridCube.scale.set(gridSize / 30, gridSize / 30, gridSize / 30);
     });
-
+    
     // Cube Pos
     cubeX.addEventListener('input', () => {cube.position.set(cubeX.value, cubeY.value, cubeZ.value);});
     cubeY.addEventListener('input', () => {cube.position.set(cubeX.value, cubeY.value, cubeZ.value);});
     cubeZ.addEventListener('input', () => {cube.position.set(cubeX.value, cubeY.value, cubeZ.value);});
     cube.position.set(cubeX.value, cubeY.value, cubeZ.value);
-    
+
     // checkbox
     rotateCheckbox.addEventListener("click", function () {
         canRotate = rotateCheckbox.checked;
@@ -150,6 +150,7 @@ function htmlValues(){
         plane.material.color.set(planeColor);
     });
 }
+//#endregion
 
 function setUp(){
     renderer.setSize(width, height);
@@ -163,10 +164,15 @@ function setUp(){
     controls.update();
 
     // Scene
+    cube.position.y = 1.5;
+    Fisiks.addPhysicsTo(cube);
+    scene.add(cube);
+
+    Fisiks.makeCollidable(plane);
+    scene.add(plane);
+
     scene.background = new three.Color(bgColor);
     scene.add(gridCube);
-    scene.add(cube);
-    scene.add(plane);
 
     // Style Canvas and other half of the website
     let offsetY = window.innerHeight - height;
@@ -177,12 +183,10 @@ function setUp(){
 
     // Values
     cam.position.z = cameraDistance;
-    cube.position.y = 1.5;
     plane.rotation.x = Math.PI / 2;
 }
 
-function render(){
-    requestAnimationFrame(render);
+function ren(){
 
     // Update Controls
     controls.update();
@@ -202,9 +206,15 @@ function render(){
     }
 
     cam.updateProjectionMatrix();
+
+    Fisiks.update(scene);
+
     renderer.render(scene, cam);
+
+    requestAnimationFrame(ren);
 }
 
-render();
-setUp();
+// Initialize html before setup();
 htmlValues();
+setUp();
+ren();
