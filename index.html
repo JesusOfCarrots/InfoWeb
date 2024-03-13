@@ -14,7 +14,10 @@
             <p>FOV: <span id="fovValue">75</span></p>
             <input type="range" name="fovSlider" id="fovSlider" value="75" min="45" max="170" step="1">
             <br> <br>
-            <br>
+            <p style="display: inline-block;">Physics</p>
+            <input type="checkbox" name="checkPhysics" id="checkPhysics">
+            
+            <br> <br>
     
             <p>Color</p> <hr>
             <label for="colorPicker">Cube Color:</label>
@@ -54,8 +57,8 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/JesusOfCarrots/Fisiks@v0.1.5/lib.js"></script>
+ <!---<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/JesusOfCarrots/Fisiks@v0.1.5/lib.js"></script> -->   
     <script type="module" src="main.js"></script>
     
 </body>

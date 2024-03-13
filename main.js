@@ -1,11 +1,48 @@
 import * as three from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
+const Fisiks = {
+    addPhysicsTo: function(object){
+        object.userData.physics = { affedtedByGravity: true, collidable: true};
+    },
+
+    makeCollidable: function(object){
+        object.userData.physics = { affedtedByGravity: false, collidable: true };
+    },
+
+    update: function(scene, gravity = new three.Vector3(0, -0.1, 0)){
+        scene.traverse(function(object) {
+            if(object.userData.physics){
+                if(object.userData.physics.affedtedByGravity){
+                    object.position.add(gravity);
+                }
+                if(object.userData.physics.collidable) {
+                    scene.traverse(function(otherObject) {
+                        if(otherObject !== object && otherObject.userData.physics && otherObject.userData.physics.collidable){
+                            if(Fisiks.checkCollision(object, otherObject)) {
+                                object.userData.physics.affedtedByGravity = false; // Stop falling
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    },
+
+    checkCollision: function(object1, object2){
+        const box1 = new three.Box3().setFromObject(object1);
+        const box2 = new three.Box3().setFromObject(object2);
+
+        return box1.intersectsBox(box2);
+    }
+};
+
 // General
 let FOV = 75;
 let cameraDistance = 5;
 let width = window.innerWidth * 0.7;
 let height = window.innerHeight * 0.7;
+let allowPhysics = false;
 
 let bgColor = 0x0000;
 
@@ -17,6 +54,7 @@ const renderer = new three.WebGLRenderer();
 const otherSpace = document.getElementById('other');
 const backgroundColorPicker = document.getElementById("gbColor");
 const fovSlider = document.getElementById('fovSlider');
+const physicsCheckbox = document.getElementById('checkPhysics');
 
 // Cube
 let canRotate = true;
@@ -164,10 +202,11 @@ function setUp(){
     controls.update();
 
     // Scene
-    cube.position.y = 1.5;
+    cube.position.y = 5;
     Fisiks.addPhysicsTo(cube);
     scene.add(cube);
 
+    plane.rotation.x = Math.PI / 2;
     Fisiks.makeCollidable(plane);
     scene.add(plane);
 
@@ -183,7 +222,6 @@ function setUp(){
 
     // Values
     cam.position.z = cameraDistance;
-    plane.rotation.x = Math.PI / 2;
 }
 
 function ren(){
@@ -207,7 +245,13 @@ function ren(){
 
     cam.updateProjectionMatrix();
 
-    Fisiks.update(scene);
+    physicsCheckbox.addEventListener('change', function() {
+        allowPhysics = this.checked;
+    });
+
+    if(allowPhysics){
+        Fisiks.update(scene);
+    }
 
     renderer.render(scene, cam);
 

@@ -1,6 +1,9 @@
 new cube,
 (resize canvas on window resize => Worked Meh)
-physics
+
+Add Physics button
+Disable Physics when box moved,
+Create new Version
 
 
 Clean up code | CSS
