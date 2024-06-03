@@ -1,51 +1,15 @@
-import * as three from 'three';
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
-
-const Fisiks = {
-    addPhysicsTo: function(object){
-        object.userData.physics = { affedtedByGravity: true, collidable: true};
-    },
-
-    makeCollidable: function(object){
-        object.userData.physics = { affedtedByGravity: false, collidable: true };
-    },
-
-    update: function(scene, gravity = new three.Vector3(0, -0.1, 0)){
-        scene.traverse(function(object) {
-            if(object.userData.physics){
-                if(object.userData.physics.affedtedByGravity){
-                    object.position.add(gravity);
-                }
-                if(object.userData.physics.collidable) {
-                    scene.traverse(function(otherObject) {
-                        if(otherObject !== object && otherObject.userData.physics && otherObject.userData.physics.collidable){
-                            if(Fisiks.checkCollision(object, otherObject)) {
-                                object.userData.physics.affedtedByGravity = false; // Stop falling
-                            }
-                        }
-                    });
-                }
-            }
-        });
-    },
-
-    checkCollision: function(object1, object2){
-        const box1 = new three.Box3().setFromObject(object1);
-        const box2 = new three.Box3().setFromObject(object2);
-
-        return box1.intersectsBox(box2);
-    }
-};
+import * as three from 'three';                                         // Importieren der Bibleothek 'three.js'
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'; // Importieren der Maus steuerung 'OrbitControls'
 
 // General
 let FOV = 75;
 let cameraDistance = 5;
 let width = window.innerWidth * 0.7;
 let height = window.innerHeight * 0.7;
-let allowPhysics = false;
 
 let bgColor = 0x0000;
 
+// Erstellung der Szenen, Kamera und renderer konstanten
 const scene = new three.Scene();
 const cam = new three.PerspectiveCamera(FOV, width / height, 0.1, 1000);
 const renderer = new three.WebGLRenderer();
@@ -54,13 +18,13 @@ const renderer = new three.WebGLRenderer();
 const otherSpace = document.getElementById('other');
 const backgroundColorPicker = document.getElementById("gbColor");
 const fovSlider = document.getElementById('fovSlider');
-const physicsCheckbox = document.getElementById('checkPhysics');
 
 // Cube
 let canRotate = true;
 let rotationSpeed = 0.02;
 let cubeSize = 1;
 let cubeColor = 0xffd700;
+// Referenz zu html
 const cubeX = document.getElementById('cubeX');
 const cubeY = document.getElementById('cubeY');
 const cubeZ = document.getElementById('cubeZ');
@@ -70,39 +34,50 @@ const rotateCheckbox = document.getElementById('rotateCheckbox');
 const cubeSizeSlider = document.getElementById('cubeSizeSlider');
 const colorPicker = document.getElementById("colorPicker");
 
+// Die konstanten für den Würfel
 const geometry = new three.BoxGeometry(cubeSize, cubeSize, cubeSize);
 const material = new three.MeshBasicMaterial( {color:cubeColor} );
 const cube = new three.Mesh(geometry, material);
 
 // Plane
-let planeColor = 0x3b0057;
-const planeColorPicker = document.getElementById('planeColor');
+// Texture laden
+const textureLoader = new three.TextureLoader();
+const planeTexture = textureLoader.load('textures/wall.png');
+
+// Notwenige konstanten für den Boden
 const planeGeometry = new three.BoxGeometry(10, 5, 1);
-const planeMaterial = new three.MeshBasicMaterial( {color:planeColor} );
+const planeMaterial = new three.MeshBasicMaterial( {map:planeTexture});
 const plane = new three.Mesh(planeGeometry, planeMaterial);
 
 // Grid
 let showGrid = true;
 let gridSize = 30;
 
+// Referenzen zu den Html elementen
 const gridCheckBox = document.getElementById('gridCheck');
 const gridSizeSlider = document.getElementById('gridSizeSlider');
 
 const gridCube = new three.Mesh(new three.BoxGeometry(30, 30, 30, 10, 10, 10), new three.MeshBasicMaterial({color:0x00ff00, wireframe:true,}));
 
-// Mouse 
+// Konstante für die Steuerung der Maus 
 const controls = new OrbitControls(cam, renderer.domElement);
+
+// Hier wird auf das Event, wo die größe des Fensters geändert wird, gehört
 window.addEventListener('resize', onWindowResize);
 
+// Eine Funktion, die auf das Event 'resize' hört und dann ausgeführt wird
 function onWindowResize(){
+    // Die Höhe und Breite wird neu berechnet
     width = window.innerWidth * 0.7;
     height = window.innerHeight * 0.7;
+    // Die Einstellung der Kamera wird angepasst
     cam.aspect = width / height;
     cam.updateProjectionMatrix();
 
+    // Es wird neu gerendert
     renderer.setSize(width, height);
 
-    // Adjust layout of otherSpace div
+    // Hier wird alles andere auf der html site außer die Szene mit css angepasst
     const offsetY = window.innerHeight - height;
     const offsetX = window.innerWidth - width;
     renderer.domElement.style.marginTop = offsetY / 2 + 'px';
@@ -110,17 +85,24 @@ function onWindowResize(){
     otherSpace.style.width = offsetX + 'px';
 }
 
-//#region Html
+// Die Aussgabe von dem Colorpicker ist nicht kompatibel mit den Farben von three.js
 function convertColor(hex){
+    // Sicherstellen, dass der Parameter ein String ist.
     hex = String(hex);
+    // # Mit nichts ersätzen
     hex = hex.replace('#', '');
 
+    // Die einzelnen Werte der Farben umwandeln
     let r = parseInt(hex.substring(0, 2), 16);
     let g = parseInt(hex.substring(2, 4), 16);
     let b = parseInt(hex.substring(4, 6), 16);
+    // Die Fertige farbe ausgeben
     return new three.Color(r / 255, g / 255, b / 255);
 }
 
+// Die Funktion behandelt alle referenzen aus dem html dokument
+// Es wird parktisch immer an das Element ein EventListener hinzugefügt. Dieser achtet dann auf ein bestimmtes Event, wie 'change', 'input', etc
+// und hängt an dieses Event eine function
 function htmlValues(){
     // General
     fovSlider.addEventListener('input', () => {
@@ -181,46 +163,43 @@ function htmlValues(){
         // Update bg color
         scene.background = new three.Color(bgColor);
     });
-    // plane color
-    planeColorPicker.addEventListener('input', function(){
-        let hexColor = planeColorPicker.value;
-        planeColor = convertColor(hexColor);
-        plane.material.color.set(planeColor);
-    });
 }
-//#endregion
 
 function setUp(){
+    // Es wird der Renderer konfiguriert
     renderer.setSize(width, height);
+    // An das html Element, dass der Renderer erstellt wird die classe 'cav' gehängt
     renderer.domElement.classList.add('cav');
     document.body.appendChild(renderer.domElement);
 
     //Controls
+    // Die Einstellungen für die Maus steuerung
     controls.target.set(1, -1, -1);
+    // Erlaubt es zu zoomen
     controls.enableZoom = true;
     controls.enableDamping = true;
     controls.update();
 
     // Scene
-    cube.position.y = 5;
-    Fisiks.addPhysicsTo(cube);
+    // Der Würfel wird hinzugefügt und mit standart Werten versehen
+    cube.position.y = 1.5;
     scene.add(cube);
 
+    // Der Boden wird hinzugefügt und mit standart Werten versehen
     plane.rotation.x = Math.PI / 2;
-    Fisiks.makeCollidable(plane);
     scene.add(plane);
 
     scene.background = new three.Color(bgColor);
     scene.add(gridCube);
 
-    // Style Canvas and other half of the website
+    // Css styling
     let offsetY = window.innerHeight - height;
     let offsetX = window.innerWidth - width;
     renderer.domElement.style.marginTop = offsetY / 2 + 'px';
     otherSpace.style.width  = offsetX + 'px';
     otherSpace.style.top = window.innerHeight * 0.01 + 'px';
 
-    // Values
+    // Die Position der Camera 
     cam.position.z = cameraDistance;
 }
 
@@ -243,22 +222,13 @@ function ren(){
         gridCube.visible = false;
     }
 
+    // 30 oder 60 mal in der Sekunde werden die Animationen gerendert also gezeichnet
     cam.updateProjectionMatrix();
-
-    physicsCheckbox.addEventListener('change', function() {
-        allowPhysics = this.checked;
-    });
-
-    if(allowPhysics){
-        Fisiks.update(scene);
-    }
-
     renderer.render(scene, cam);
-
     requestAnimationFrame(ren);
 }
 
-// Initialize html before setup();
+
 htmlValues();
 setUp();
 ren();

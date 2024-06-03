@@ -5,31 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Cube</title>
 
+    <!-- Einbindung der Css Datei -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="container">
+        <!-- Erstellung der Verschiedenen Eingabefelder für die Steuerung der Variablen, wie Größe, Position, etc -->
+        <!-- Es wird jewals eine Überschrift (<p>), ein label für den konkreten Namen und die Eingabe an sich erstellt-->
+        <!-- Zwischen durch gibt es Linen (hr) und Seitenumbrücke (br) -->
         <div id="other" style="float: left; margin-left: 7px;">
             <p>General:</p> <hr>
             <p>FOV: <span id="fovValue">75</span></p>
             <input type="range" name="fovSlider" id="fovSlider" value="75" min="45" max="170" step="1">
             <br> <br>
-            <p style="display: inline-block;">Physics</p>
-            <input type="checkbox" name="checkPhysics" id="checkPhysics">
-            
-            <br> <br>
+      
     
             <p>Color</p> <hr>
             <label for="colorPicker">Cube Color:</label>
             <input type="color" name="colorPicker" id="colorPicker" value="#FFD700">
             <br> <br>
-            <label for="planeColor">Plane Color:</label>
-            <input type="color" name="planeColor" id="planeColor" value="#3b0057">
-            <br> <br>
+
             <label for="bgColor">Background Color:</label>
             <input type="color" name="gbColor" id="gbColor">
             <br> <br>
-            <br>
             <p>Cube</p> <hr>
     
             <input type="checkbox" name="canRotate" id="rotateCheckbox" checked>
@@ -56,9 +54,8 @@
             <p>Grid Size: <span id="gridSizeValue">30</span></p>
         </div>
     </div>
-
- <!---<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/JesusOfCarrots/Fisiks@v0.1.5/lib.js"></script> -->   
+ 
+    <!-- Einbindung der JavaScript datei -->
     <script type="module" src="main.js"></script>
     
 </body>
